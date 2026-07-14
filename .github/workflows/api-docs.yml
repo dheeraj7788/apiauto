@@ -26,12 +26,18 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
-        
-     - name: Generate API Documentation
-       run: redocly build-docs openapi/openapi.yaml --output docs/index.html
-     - name: Commit generated docs
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli
+
+      - name: Validate OpenAPI Specification
+        run: redocly lint openapi/openapi.yaml
+
+      - name: Generate API Documentation
+        run: |
+          mkdir -p docs
+          redocly build-docs openapi/openapi.yaml --output docs/index.html
+
+      - name: Commit generated docs
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
