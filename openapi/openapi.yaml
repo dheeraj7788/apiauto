@@ -4,11 +4,20 @@ info:
   title: Sample User API
   version: 1.0.0
   description: Sample API for testing GitHub Actions.
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production Server
+
+security: []
 
 paths:
   /users:
     get:
       summary: Get all users
+
       responses:
         '200':
           description: Successful response
