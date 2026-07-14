@@ -1,1 +1,3 @@
-yaml file
+/users:
+  get:
+    summary: Get users
