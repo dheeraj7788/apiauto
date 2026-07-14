@@ -57,9 +57,15 @@ jobs:
           grep "Sample User API" docs/index.html
 
       # Commit generated documentation
-      - name: Commit generated documentation
+      - name: Commit and Push generated documentation
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
           git add docs/
-          git commit -m "Update API documentation" || echo "No changes"
+
+          git diff --cached --quiet && echo "No documentation changes" && exit 0
+
+          git commit -m "Update API documentation"
+
+          git push
