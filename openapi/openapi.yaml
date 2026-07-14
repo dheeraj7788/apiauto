@@ -1,3 +1,14 @@
-/users:
-  get:
-    summary: Get users from list on the api
+openapi: 3.0.3
+
+info:
+  title: Sample User API
+  version: 1.0.0
+  description: Sample API for testing GitHub Actions.
+
+paths:
+  /users:
+    get:
+      summary: Get all users
+      responses:
+        '200':
+          description: Successful response
