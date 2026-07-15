@@ -1,51 +1,48 @@
 import os
-from pathlib import Path
 from openai import OpenAI
 
-# Read OpenAPI specification
-openapi = Path("openapi/openapi.yaml").read_text(encoding="utf-8")
-
-# Connect to GitHub Models
 client = OpenAI(
     base_url="https://models.github.ai/inference",
-    api_key=os.environ["GH_MODELS_TOKEN"]
+    api_key=os.environ["GH_MODELS_TOKEN"],
 )
 
-# Prompt
+with open("openapi/openapi.yaml", "r", encoding="utf-8") as f:
+    spec = f.read()
+
 prompt = f"""
-You are a Senior API Technical Writer.
+You are an expert API Technical Writer.
 
-Review the following OpenAPI specification.
+Improve this OpenAPI specification.
 
-Check for:
-1. Missing summaries
-2. Missing descriptions
-3. Missing parameter descriptions
-4. Missing request examples
-5. Missing response examples
-6. Missing error responses
+Tasks:
+1. Improve endpoint summaries.
+2. Improve descriptions.
+3. Generate parameter descriptions.
+4. Improve request body descriptions.
+5. Improve response descriptions.
+6. Improve error documentation.
+7. Suggest missing documentation.
+8. Preserve valid OpenAPI syntax.
 
-Return the review in Markdown.
+Return ONLY the updated YAML.
 
-{openapi}
+{spec}
 """
 
-# Call GitHub Models
 response = client.chat.completions.create(
-    model="openai/gpt-4.1-mini",
+    model="openai/gpt-4.1",
     messages=[
         {
             "role": "user",
             "content": prompt
         }
-    ]
+    ],
+    temperature=0.2,
 )
 
-# Save AI review
-Path("docs").mkdir(exist_ok=True)
-Path("docs/AI_REVIEW.md").write_text(
-    response.choices[0].message.content,
-    encoding="utf-8"
-)
+improved_spec = response.choices[0].message.content
 
-print("AI review generated successfully.")
+with open("openapi/openapi.yaml", "w", encoding="utf-8") as f:
+    f.write(improved_spec)
+
+print("OpenAPI documentation improved successfully.")
