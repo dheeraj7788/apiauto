@@ -72,3 +72,8 @@ jobs:
           git commit -m "Update API documentation"
 
           git push
+
+      - name: Generate AI Review
+        env:
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+        run: python scripts/generate_ai_review.py          
