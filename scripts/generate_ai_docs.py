@@ -30,7 +30,7 @@ Return ONLY the updated YAML.
 """
 
 response = client.chat.completions.create(
-    model="openai/gpt-4.1",
+    model="openai/gpt-5",
     messages=[
         {
             "role": "user",
