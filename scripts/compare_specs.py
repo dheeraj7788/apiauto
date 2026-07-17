@@ -1,66 +1,57 @@
+import subprocess
 import yaml
-import json
 from pathlib import Path
 
-OLD_SPEC = "openapi/old-openapi.yaml"
-NEW_SPEC = "openapi/openapi.yaml"
 
-REPORT = "docs/api-change-report.md"
+SPEC_FILE = "openapi/openapi.yaml"
 
 
-def load_yaml(file):
-    with open(file, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+def load_yaml_from_git(revision):
+    result = subprocess.run(
+        [
+            "git",
+            "show",
+            f"{revision}:{SPEC_FILE}"
+        ],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        return None
+
+    return yaml.safe_load(result.stdout)
 
 
-def get_endpoints(spec):
-    endpoints = {}
+def extract_paths(spec):
+    if spec is None:
+        return {}
 
-    for path, methods in spec.get("paths", {}).items():
-        for method in methods:
-            endpoints[f"{method.upper()} {path}"] = methods[method]
-
-    return endpoints
+    return spec.get("paths", {})
 
 
-old_spec = load_yaml(OLD_SPEC)
-new_spec = load_yaml(NEW_SPEC)
+current = yaml.safe_load(open(SPEC_FILE))
 
-old_endpoints = get_endpoints(old_spec)
-new_endpoints = get_endpoints(new_spec)
+previous = load_yaml_from_git("HEAD~1")
 
-added = sorted(set(new_endpoints) - set(old_endpoints))
-removed = sorted(set(old_endpoints) - set(new_endpoints))
-common = sorted(set(old_endpoints) & set(new_endpoints))
+old_paths = extract_paths(previous)
+new_paths = extract_paths(current)
 
-report = []
+changed = {}
 
-report.append("# API Change Report\n")
+for path, methods in new_paths.items():
 
-report.append("## Added Endpoints\n")
+    if path not in old_paths:
+        changed[path] = methods
 
-if added:
-    for item in added:
-        report.append(f"- {item}")
-else:
-    report.append("- None")
+    elif methods != old_paths[path]:
+        changed[path] = methods
 
-report.append("\n## Removed Endpoints\n")
 
-if removed:
-    for item in removed:
-        report.append(f"- {item}")
-else:
-    report.append("- None")
+yaml.dump(
+    changed,
+    open("changed_endpoints.yaml", "w"),
+    sort_keys=False
+)
 
-report.append("\n## Existing Endpoints\n")
-
-for item in common:
-    report.append(f"- {item}")
-
-Path("docs").mkdir(exist_ok=True)
-
-with open(REPORT, "w", encoding="utf-8") as f:
-    f.write("\n".join(report))
-
-print("Report generated:", REPORT)
+print("Changed endpoints:", len(changed))
