@@ -1,23 +1,69 @@
-openapi: 3.0.3
-
+openapi: 3.0.4
 info:
-  title: Sample User API SAMPLE
-  version: 1.0.0
-  description: Sample API for testing GitHub Actions.
+  title: Employee API Documents
+  description: >-
+    This is an Employee API document for developer audience.
+  termsOfService: https://swagger.io/terms/
+  contact:
+    email: info@techwriterslab.com
   license:
-    name: MIT
-
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.12
+externalDocs:
+  description: Find out more about Swagger
+  url: https://www.google.com/
 servers:
-  - url: https://api.example.com/v1
-    description: Production Server
-
-security: []
+  - url: https://dummy.restapiexample.com/api/v1
+tags:
+  - name: Employee
+    description: Everything about your employee
 
 paths:
-  /users:
-    get:
-      summary: Get all users
-
+  /create:
+    post:
+      tags:
+        - Employee
+      summary: Create an employee in the database.
+      description: Create an employee in the database.
+      operationId: employee
+      requestBody:
+        description: enter deatatils in the request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+        required: true
       responses:
         '200':
-          description: Successful response
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: PEmployee ID is not found
+        '422':
+          description: Validation exception
+
+
+
+
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        name:
+          format: string
+          example: Mahesh
+        salary:
+          type: integer
+          format: int64
+          example: 20000
+        age:
+          type: integer
+          format: int32
+          example: 23
