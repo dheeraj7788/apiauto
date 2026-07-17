@@ -1,48 +1,57 @@
 import os
+import yaml
+
 from openai import OpenAI
+
 
 client = OpenAI(
     base_url="https://models.github.ai/inference",
-    api_key=os.environ["GH_MODELS_TOKEN"],
+    api_key=os.environ["GH_MODELS_TOKEN"]
 )
 
-with open("openapi/openapi.yaml", "r", encoding="utf-8") as f:
-    spec = f.read()
+
+changed = yaml.safe_load(open("changed_endpoints.yaml"))
+
+if not changed:
+    print("No endpoint changes.")
+    exit()
+
 
 prompt = f"""
-You are an expert API Technical Writer.
+Improve the following OpenAPI endpoints.
 
-Improve this OpenAPI specification.
+Generate
 
-Tasks:
-1. Improve endpoint summaries.
-2. Improve descriptions.
-3. Generate parameter descriptions.
-4. Improve request body descriptions.
-5. Improve response descriptions.
-6. Improve error documentation.
-7. Suggest missing documentation.
-8. Preserve valid OpenAPI syntax.
+- better summary
+- description
+- parameter descriptions
+- request examples
+- response examples
+- error documentation
 
-Return ONLY the updated YAML.
+Return VALID YAML only.
 
-{spec}
+{yaml.dump(changed)}
 """
 
+
 response = client.chat.completions.create(
+
     model="openai/gpt-5",
+
     messages=[
         {
             "role": "user",
             "content": prompt
         }
     ],
-    temperature=0.2,
+
+    temperature=0.2
 )
 
-improved_spec = response.choices[0].message.content
+content = response.choices[0].message.content
 
-with open("openapi/openapi.yaml", "w", encoding="utf-8") as f:
-    f.write(improved_spec)
+with open("ai_output.yaml", "w", encoding="utf-8") as f:
+    f.write(content)
 
-print("OpenAPI documentation improved successfully.")
+print("AI documentation generated.")
