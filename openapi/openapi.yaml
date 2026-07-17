@@ -22,6 +22,7 @@ tags:
 paths:
   /create:
     post:
+      security: []
       tags:
         - Employee
       summary: Create an employee in the database.
