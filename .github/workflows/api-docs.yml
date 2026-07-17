@@ -1,79 +1,69 @@
-name: API Documentation Pipeline
+openapi: 3.0.4
+info:
+  title: Employee API Documents
+  description: >-
+    This is an Employee API document for developer audience.
+  termsOfService: https://swagger.io/terms/
+  contact:
+    email: info@techwriterslab.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.12
+externalDocs:
+  description: Find out more about Swagger
+  url: https://www.google.com/
+servers:
+  - url: https://dummy.restapiexample.com/api/v1
+tags:
+  - name: Employee
+    description: Everything about your employee
 
-permissions:
-  contents: write
+paths:
+  /create:
+    post:
+      tags:
+        - Employee
+      summary: Create an employee in the database.
+      description: Create an employee in the database.
+      operationId: employee
+      requestBody:
+        description: enter deatatils in the request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Employee'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: PEmployee ID is not found
+        '422':
+          description: Validation exception
 
-on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "openapi/**"
 
-  push:
-    branches:
-      - main
-    paths:
-      - "openapi/**"
 
-jobs:
-  api-documentation:
-    runs-on: ubuntu-latest
 
-    steps:
-      # Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-        
-
-      # Install Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # Install Redocly CLI
-      - name: Install Redocly CLI
-        run: npm install -g @redocly/cli
-
-      # Validate OpenAPI specification
-      - name: Validate OpenAPI Specification
-        run: redocly lint openapi/openapi.yaml
-
-      # Generate HTML documentation
-      - name: Generate HTML Documentation
-        run: |
-          mkdir -p docs
-          redocly build-docs openapi/openapi.yaml --output docs/index.html
-
-      # Verify HTML file was generated
-      - name: Verify HTML Documentation
-        run: |
-          test -f docs/index.html
-          echo "HTML documentation generated successfully."
-
-      # Validate generated HTML content
-      - name: Validate HTML Content
-        run: |
-          grep "Sample User API" docs/index.html
-
-      # Commit generated documentation
-      - name: Commit and Push generated documentation
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git add docs/
-
-          git diff --cached --quiet && echo "No documentation changes" && exit 0
-
-          git commit -m "Update API documentation"
-
-          git push
-
-      - name: Generate AI Review
-        env:
-          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
-        run: python scripts/generate_ai_review.py          
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        name:
+          format: string
+          example: Mahesh
+        salary:
+          type: integer
+          format: int64
+          example: 20000
+        age:
+          type: integer
+          format: int32
+          example: 23
