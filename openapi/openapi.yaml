@@ -1,6 +1,6 @@
 openapi: 3.0.4
 info:
-  title: Employee API Documents New123
+  title: Employee API Documents
   description: >-
     This is an Employee API document for developer audience.
   termsOfService: https://swagger.io/terms/
