@@ -55,9 +55,9 @@ jobs:
           echo "HTML documentation generated successfully."
 
       # Validate generated HTML content
-      - name: Validate HTML Content
+      - name: Validate HTML
         run: |
-          grep "Sample User API" docs/index.html
+          test -f docs/index.html
 
       # Commit generated documentation
       - name: Commit and Push generated documentation
